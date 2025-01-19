@@ -1,4 +1,4 @@
-# nf-core/mypipeline: Output
+# nf-core/evexplorer: Output
 
 ## Introduction
 

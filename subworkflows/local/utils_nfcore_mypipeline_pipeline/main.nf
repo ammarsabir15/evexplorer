@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the nf-core/mypipeline pipeline
+// Subworkflow with functionality specific to the nf-core/evexplorer pipeline
 //
 
 /*
@@ -36,6 +36,7 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    fasta   
 
     main:
 
@@ -99,6 +100,10 @@ workflow PIPELINE_INITIALISATION {
                 return [ meta, fastqs.flatten() ]
         }
         .set { ch_samplesheet }
+
+
+
+
 
     emit:
     samplesheet = ch_samplesheet
