@@ -127,13 +127,6 @@ ch_grouped_index = ch_bam_index
 
 
 
-ch_grouped_bam.view { v -> "Grouped BAM files: ${v}" }
-ch_grouped_index.view { v -> "Grouped Index files: ${v}" }
-
-
-
-
-
  DERFINDER(
   ch_grouped_bam,
   ch_grouped_index,

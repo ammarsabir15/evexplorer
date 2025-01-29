@@ -4,8 +4,8 @@ library("rtracklayer")
 library("GenomicRanges")
 library("devtools")
 library("rstudioapi")
-devtools::install_github("frankRuehle/systemsbio", build_vignettes=FALSE)
-library("systemsbio")
+#devtools::install_github("frankRuehle/systemsbio", build_vignettes=FALSE)
+#library("systemsbio")
 library("derfinder")
 library("ggplot2")
 library("caret")
@@ -177,3 +177,33 @@ print(files)
 
 df_1<- Get_Annotated_Matrix(chrs,cutoff,files,Rlen, gffdata)
 save(df_1, file = "derfinder_out_parallel_unique.Rda")
+
+
+
+
+
+
+# Get R version
+r.version <- strsplit(version[['version.string']], ' ')[[1]][3]
+
+# Get package versions
+packages <- c(
+	        "Rsamtools", "rtracklayer", "GenomicRanges", "devtools", "rstudioapi",
+		  "derfinder", "ggplot2", "caret", "reshape2", "data.table", "BiocParallel"
+		)
+
+package.versions <- sapply(packages, function(pkg) {
+				     tryCatch(as.character(packageVersion(pkg)), error = function(e) "NA")
+		})
+
+# Write versions to YAML
+writeLines(
+	     c(
+	           '"${task.process}":',
+		       paste('    r-base:', r.version),
+		       sapply(names(package.versions), function(pkg) {
+				            paste0('    r-', tolower(pkg), ': ', package.versions[[pkg]])
+					        })
+		         ),
+	     'versions.yml'
+	     )

@@ -15,7 +15,7 @@ process DERFINDER {
     path gtf_2
 
     output:
-    path("derfinder_out_parallel_unique.Rda")  , emit: Rda 
+    tuple val(meta), path ("*.Rda")  , emit: Rda 
     path "versions.yml"           , emit: versions
 
     when:
