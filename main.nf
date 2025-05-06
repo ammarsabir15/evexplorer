@@ -1,15 +1,13 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/mypipeline
+    nf-core/evexplorer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/mypipeline
-    Website: https://nf-co.re/mypipeline
-    Slack  : https://nfcore.slack.com/channels/mypipeline
+    Github : https://github.com/nf-core/evexplorer
+    Website: https://nf-co.re/evexplorer
+    Slack  : https://nfcore.slack.com/channels/evexplorer
 ----------------------------------------------------------------------------------------
 */
-
-nextflow.enable.dsl = 2
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -17,11 +15,10 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MYPIPELINE  } from './workflows/mypipeline'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_mypipeline_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_mypipeline_pipeline'
-
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_mypipeline_pipeline'
+include { EVEXPLORER  } from './workflows/evexplorer'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_evexplorer_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_evexplorer_pipeline'
+include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_evexplorer_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,7 +40,7 @@ params.fasta = getGenomeAttribute('fasta')
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow NFCORE_MYPIPELINE {
+workflow NFCORE_EVEXPLORER {
 
     take:
     samplesheet // channel: samplesheet read in from --input
@@ -53,13 +50,11 @@ workflow NFCORE_MYPIPELINE {
     //
     // WORKFLOW: Run pipeline
     //
-    MYPIPELINE (
+    EVEXPLORER (
         samplesheet
     )
-
     emit:
-    multiqc_report = MYPIPELINE.out.multiqc_report // channel: /path/to/multiqc_report.html
-
+    multiqc_report = EVEXPLORER.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,13 +65,11 @@ workflow NFCORE_MYPIPELINE {
 workflow {
 
     main:
-
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
     PIPELINE_INITIALISATION (
         params.version,
-        params.help,
         params.validate_params,
         params.monochrome_logs,
         args,
@@ -87,10 +80,9 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_MYPIPELINE (
+    NFCORE_EVEXPLORER (
         PIPELINE_INITIALISATION.out.samplesheet
     )
-
     //
     // SUBWORKFLOW: Run completion tasks
     //
@@ -101,7 +93,7 @@ workflow {
         params.outdir,
         params.monochrome_logs,
         params.hook_url,
-        NFCORE_MYPIPELINE.out.multiqc_report
+        NFCORE_EVEXPLORER.out.multiqc_report
     )
 }
 
