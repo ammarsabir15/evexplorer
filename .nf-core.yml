@@ -1,2 +1,14 @@
+nf_core_version: 3.2.1
 repository_type: pipeline
-nf_core_version: "2.14.1"
+template:
+  author: Ammar S. Cheema, Modeline N. Longjohn and Eric A
+  description: evexplorer is a pipeline for analyzing RNA data from extracellular
+    vesicles, compatible with technologies such as nextflex, comboSeq, and ONT with
+    further support forthcoming. evexplorer handles QC, expressed region detection,
+    library size normalization and Differential RNA Expression (DRE)
+  force: false
+  is_nfcore: true
+  name: evexplorer
+  org: nf-core
+  outdir: .
+  version: 1.0dev
