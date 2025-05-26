@@ -4,8 +4,6 @@ library("rtracklayer")
 library("GenomicRanges")
 library("devtools")
 library("rstudioapi")
-#devtools::install_github("frankRuehle/systemsbio", build_vignettes=FALSE)
-#library("systemsbio")
 library("derfinder")
 library("ggplot2")
 library("caret")
@@ -15,11 +13,8 @@ library("BiocParallel")
 
 
 
-
-
 files <- list.files()                # Get all files in the directory
 files <- files[endsWith(files, ".bam")]
-
 
 
 cutoff <- 5
