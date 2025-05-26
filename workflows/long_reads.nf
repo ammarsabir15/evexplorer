@@ -1,19 +1,20 @@
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { FASTQC as FASTQC_PRE_TRIM } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT                  } from '../modules/nf-core/cutadapt/main'
+include { PYCHOPPER } from '../modules/nf-core/pychopper/main'
+include { MINIMAP2_ALIGN } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_INDEX } from '../modules/nf-core/minimap2/index/main'
 include { FASTQC as FASTQC_POST_TRIM } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
-include { STAR_GENOMEGENERATE       } from '../modules/nf-core/star/genomegenerate/main'
 include { GUNZIP                    } from '../modules/nf-core/gunzip/main'
 include { STAR_ALIGN                } from '../modules/nf-core/star/align/main'
-include { SAMTOOLS_SORT             } from '../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX            } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_SORT             } from '../modules/nf-core/samtools/sort/main'      
+include { SAMTOOLS_INDEX            } from '../modules/nf-core/samtools/index/main'     
 include { DERFINDER                 } from '../modules/local/derfinder/main'
-include { BATCHCORRECTION           } from '../modules/local/batchcorrection/main'
+include { BATCHCORRECTION           } from '../modules/local/batchcorrection/main'      
 include { DRE                       } from '../modules/local/dre/main'
 include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -21,12 +22,12 @@ include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore
 include { methodsDescriptionText    } from '../subworkflows/local/utils_nfcore_evexplorer_pipeline'
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow EVEXPLORER {
+workflow LONG_READS {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
@@ -45,14 +46,11 @@ workflow EVEXPLORER {
 
 
 
-  STAR_GENOMEGENERATE (
-       ch_fasta,
-         [ [:], [] ]    
-) 
+  MINIMAP2_INDEX ( ch_fasta )
 
 
-ch_star_index = STAR_GENOMEGENERATE.out.index.collect()
-ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
+ch_minimap2_index = MINIMAP2_INDEX.out.index.collect()
+ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions.first())
 
     //
     // MODULE: Run FastQC before trimming
@@ -66,12 +64,12 @@ ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
     //
     // MODULE: Run Cutadapt for trimming
     //
-    CUTADAPT (
+    PYCHOPPER (
         ch_samplesheet
     )
- ch_trimmed_reads = CUTADAPT.out.reads
- ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
-    
+ ch_trimmed_reads = PYCHOPPER.out.fastq
+ ch_versions = ch_versions.mix(PYCHOPPER.out.versions.first())
+
     //
     // MODULE: Run FastQC after trimming
     //
@@ -80,38 +78,20 @@ ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_POST_TRIM.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC_POST_TRIM.out.versions)
-    
 
 
-STAR_ALIGN (
+MINIMAP2_ALIGN (
     ch_trimmed_reads,
-    ch_star_index, 
-    [ [:], [] ],
-    [ [:], [] ],
-    [ [:], [] ],
-    [ [:], [] ]
+    ch_minimap2_index,
+     true,          // bam_format
+     'bai',         // bam_index_extension
+     false,         // cigar_paf_format
+     true 
 )
 
 // Collect all BAM outputs in a single channel
-ch_aligned_bam = STAR_ALIGN.out.bam
-
-// MODULE: Samtools Sort
-    SAMTOOLS_SORT (
-        ch_aligned_bam,
-        ch_fasta 
-    )
-    ch_sorted_bam = SAMTOOLS_SORT.out.bam
-    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions.first())
-
-
- 
-// MODULE: Samtools Index
-  SAMTOOLS_INDEX (
-        ch_sorted_bam
-    )
-    ch_bam_index = SAMTOOLS_INDEX.out.bai
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
-
+ch_sorted_bam = MINIMAP2_ALIGN.out.bam
+ch_bam_index  = MINIMAP2_ALIGN.out.index
 
 
 ch_grouped_bam = ch_sorted_bam
@@ -123,7 +103,6 @@ ch_grouped_index = ch_bam_index
     .groupTuple()
 
 
-
 DERFINDER(
   ch_grouped_bam,
   ch_grouped_index,
@@ -131,7 +110,6 @@ DERFINDER(
   ch_gtf_1,
   ch_gtf_2
    )
-
 
 
 ch_samplesheet
@@ -145,7 +123,7 @@ ch_derfinder = DERFINDER.out.Rda
       ch_batch,
       ch_derfinder
                  )
-
+				 
 ch_samplesheet
     .map { meta, _ -> tuple(meta.id, meta.sample_batch, meta.sample_cond ) }
     .collect()
@@ -153,10 +131,11 @@ ch_samplesheet
 
 ch_count_matrix= BATCHCORRECTION.out.count_matrix
 
+
 DRE (
 ch_condition,
 ch_count_matrix
-)
+  )
     //
     // Collate and save software versions
     //
@@ -214,8 +193,3 @@ ch_count_matrix
 
 }
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/

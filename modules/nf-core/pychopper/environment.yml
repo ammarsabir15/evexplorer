@@ -3,9 +3,5 @@
 channels:
   - conda-forge
   - bioconda
-
 dependencies:
-  - bioconda::htslib=1.21
-  - bioconda::samtools=1.21
-  - bioconda::star=2.7.11b
-  - conda-forge::gawk=5.1.0
+  - "bioconda::pychopper=2.7.10"

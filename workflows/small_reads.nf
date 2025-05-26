@@ -1,7 +1,7 @@
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { FASTQC as FASTQC_PRE_TRIM } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT                  } from '../modules/nf-core/cutadapt/main'
@@ -10,10 +10,10 @@ include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
 include { STAR_GENOMEGENERATE       } from '../modules/nf-core/star/genomegenerate/main'
 include { GUNZIP                    } from '../modules/nf-core/gunzip/main'
 include { STAR_ALIGN                } from '../modules/nf-core/star/align/main'
-include { SAMTOOLS_SORT             } from '../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX            } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_SORT             } from '../modules/nf-core/samtools/sort/main'      
+include { SAMTOOLS_INDEX            } from '../modules/nf-core/samtools/index/main'     
 include { DERFINDER                 } from '../modules/local/derfinder/main'
-include { BATCHCORRECTION           } from '../modules/local/batchcorrection/main'
+include { BATCHCORRECTION           } from '../modules/local/batchcorrection/main'      
 include { DRE                       } from '../modules/local/dre/main'
 include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -21,12 +21,12 @@ include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore
 include { methodsDescriptionText    } from '../subworkflows/local/utils_nfcore_evexplorer_pipeline'
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow EVEXPLORER {
+workflow SMALL_READS {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
@@ -47,8 +47,8 @@ workflow EVEXPLORER {
 
   STAR_GENOMEGENERATE (
        ch_fasta,
-         [ [:], [] ]    
-) 
+         [ [:], [] ]
+)
 
 
 ch_star_index = STAR_GENOMEGENERATE.out.index.collect()
@@ -71,7 +71,7 @@ ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
     )
  ch_trimmed_reads = CUTADAPT.out.reads
  ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
-    
+
     //
     // MODULE: Run FastQC after trimming
     //
@@ -80,12 +80,12 @@ ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_POST_TRIM.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC_POST_TRIM.out.versions)
-    
+
 
 
 STAR_ALIGN (
     ch_trimmed_reads,
-    ch_star_index, 
+    ch_star_index,
     [ [:], [] ],
     [ [:], [] ],
     [ [:], [] ],
@@ -98,13 +98,13 @@ ch_aligned_bam = STAR_ALIGN.out.bam
 // MODULE: Samtools Sort
     SAMTOOLS_SORT (
         ch_aligned_bam,
-        ch_fasta 
+        ch_fasta
     )
     ch_sorted_bam = SAMTOOLS_SORT.out.bam
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions.first())
 
 
- 
+
 // MODULE: Samtools Index
   SAMTOOLS_INDEX (
         ch_sorted_bam
@@ -214,8 +214,3 @@ ch_count_matrix
 
 }
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
