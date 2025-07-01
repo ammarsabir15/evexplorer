@@ -1,0 +1,7 @@
+sample,fastq_1,fastq_2,batch,condition
+SRR23499739,/mnt/acri4_2/acheema/test-datasets/ont_datasets/ont_sub_sampled_datasets/SRR23499739.fastq.sampled.fastq.gz,,1,disease
+SRR23499740,/mnt/acri4_2/acheema/test-datasets/ont_datasets/ont_sub_sampled_datasets/SRR23499740.fastq.sampled.fastq.gz,,2,disease
+SRR23499741,/mnt/acri4_2/acheema/test-datasets/ont_datasets/ont_sub_sampled_datasets/SRR23499741.fastq.sampled.fastq.gz,,2,disease
+SRR23499744,/mnt/acri4_2/acheema/test-datasets/ont_datasets/ont_sub_sampled_datasets/SRR23499744.1.fastq.sampled.fastq.gz,,1,normal
+SRR23499745,/mnt/acri4_2/acheema/test-datasets/ont_datasets/ont_sub_sampled_datasets/SRR23499745.1.fastq.sampled.fastq.gz,,2,normal
+SRR23499746,/mnt/acri4_2/acheema/test-datasets/ont_datasets/ont_sub_sampled_datasets/SRR23499746.1.fastq.sampled.fastq.gz,,1,normal

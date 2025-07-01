@@ -4,7 +4,7 @@ channels:
   - defaults
 
 dependencies:
-  - conda-forge::r-base=4.1 # Specify the R version if needed
+  - conda-forge::r-base=4.1  # Specify the R version if needed
   - conda-forge::r-optparse
   - conda-forge::r-ggplot2
   - conda-forge::r-caret
