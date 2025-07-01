@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://nf-co.re/evexplorer-schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/evexplorer/master/assets/schema_input.json",
     "title": "nf-core/evexplorer pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
@@ -16,26 +16,16 @@
             "fastq_1": {
                 "type": "string",
                 "format": "file-path",
-                "checkIfExists": true,
+                "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces, and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "fastq_2": {
                 "type": "string",
                 "format": "file-path",
+                "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
-            },
-            "batch": {
-                "type": "integer",
-                "meta": ["sample_batch"],
-	       	"enum": [1, 2]
-            },
-            "condition": {
-                "type": "string",
-		"meta": ["sample_cond"],
-                "enum": ["normal", "disease"],
-                "default": "normal"
             }
         },
         "required": ["sample", "fastq_1"]
