@@ -123,7 +123,7 @@ ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
     .groupTuple()
 
      //
-     // MODULE: DERFINDER
+     // MODULE: DERFINDER to generate counts from bam files
      //
      DERFINDER(
      ch_grouped_bam,
@@ -162,7 +162,7 @@ ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
    ch_count_matrix= BATCHCORRECTION.out.count_matrix
 
     //
-    // MODULE: DRE
+    // MODULE: performing differential RNA expression
     //
     DRE (
     ch_condition,
