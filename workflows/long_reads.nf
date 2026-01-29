@@ -144,7 +144,7 @@ ch_count_matrix= BATCHCORRECTION.out.count_matrix
 
 
     //
-    // MODULE: performing differential gene expression 
+    // MODULE: performing differential RNA expression 
     //
 DRE (
 ch_condition,
